@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>SQL反模式（一） | 写码笔记</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><link rel="alternate" type="application/atom+xml" href="/atom.xml"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-109825051-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">SQL反模式（一）</h1><a id="logo" href="/.">写码笔记</a><p class="description">duqutao@gmail.com</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">SQL反模式（一）</h1><div class="post-meta">May 8, 2017<span> | </span><span class="category"><a href="/categories/programming/">写码</a></span></div><div class="post-content"><p>本文为<a href="https://book.douban.com/subject/6800774/" target="_blank" rel="noopener">《SQL反模式》</a> —— 逻辑型数据库设计反模式的归纳整理</p>
+<a id="more"></a>
+<h3 id="乱穿马路"><a href="#乱穿马路" class="headerlink" title="乱穿马路"></a>乱穿马路</h3><hr>
+<h4 id="存储多值属性"><a href="#存储多值属性" class="headerlink" title="存储多值属性"></a>存储多值属性</h4><h4 id="反模式：格式化的逗号分隔列表"><a href="#反模式：格式化的逗号分隔列表" class="headerlink" title="反模式：格式化的逗号分隔列表"></a>反模式：格式化的逗号分隔列表</h4><p>单个字段内用逗号分隔多个属性</p>
+<p>引起的问题：</p>
+<ul>
+<li>单个字段结构有长度限制</li>
+<li>无法正常使用关联查询</li>
+<li>无法使用索引</li>
+<li>无法使用聚合函数</li>
+<li>无法保证引用完整性</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>出于性能优化考虑</li>
+<li>只作为值使用，不需要对其进行修改，和建立连接关系</li>
+</ul>
+<h4 id="反模式：创建多个列"><a href="#反模式：创建多个列" class="headerlink" title="反模式：创建多个列"></a>反模式：创建多个列</h4><p>创建多个列来存储多值属性</p>
+<p>引起的问题：</p>
+<ul>
+<li>查询时需要搜索所有相关的列</li>
+<li>更新和删除一个值前需要先查询出所有列进行分析</li>
+<li>需要处理不断增长的值集</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>一个属性只有固定数量的值集，且值的实际业务逻辑作用是不同的</li>
+</ul>
+<h4 id="解决方案：创建一个交叉表"><a href="#解决方案：创建一个交叉表" class="headerlink" title="解决方案：创建一个交叉表"></a>解决方案：创建一个交叉表</h4><p>创建一个交叉表，将多个值记录在多个行里而不是列里</p>
+<h3 id="树形结构的存储与查询"><a href="#树形结构的存储与查询" class="headerlink" title="树形结构的存储与查询"></a>树形结构的存储与查询</h3><hr>
+<h4 id="反模式：总是依赖父节点"><a href="#反模式：总是依赖父节点" class="headerlink" title="反模式：总是依赖父节点"></a>反模式：总是依赖父节点</h4><p>添加 <code>parent_id</code> 字段，即使用邻接表</p>
+<p>引起的问题：</p>
+<ul>
+<li>查询一个节点的所有后代时，要么贴加相应层级数的关联查询，要么查出所有的行，在应用中进行处理</li>
+<li>删除一个节点及其子树时，需要执行多次查询找到节点的后代进行删除</li>
+<li>删除一个非叶节点并移动后代时，需要先修改子节点的 <code>parent_id</code>，然后才能进行移动</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>业务需要快速获取给定节点的新节点，易于插入新节点，并且只有嵌套不深的有限层级（如2~3层）</li>
+<li>使用 <code>PostgreSQL</code>、<code>Oracle</code> 等支持递归查询的数据库</li>
+</ul>
+<h4 id="解决方案：路径枚举"><a href="#解决方案：路径枚举" class="headerlink" title="解决方案：路径枚举"></a>解决方案：路径枚举</h4><p>使用 <code>path</code> 来代替 <code>parent_id</code>，类似 UNIX 文件系统的路径，在 <code>path</code> 中枚举所有的父节点如 <code>/parent_id_1/parent_id_2/self_id</code></p>
+<p>优点</p>
+<ul>
+<li>可以比较方便的使用 <code>like</code> 查出指定节点的所有祖先和子节点</li>
+<li>可以很方便的通过路径获取节点所在的层级</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>单字段有最大长度限制，无法支持无限扩展</li>
+<li>无法保证引用完整性，需要依赖业务逻辑来维护路径格式和引用的正确</li>
+</ul>
+<h4 id="解决方案：嵌套集"><a href="#解决方案：嵌套集" class="headerlink" title="解决方案：嵌套集"></a>解决方案：嵌套集</h4><p>使用两个数字来编码每个节点，例入 <code>left</code> 和 <code>right</code>，<br><code>left</code> 小于该节点所有后代节点的 <code>id</code>，<code>right</code> 则大于所有后代节点的 <code>id</code></p>
+<p>优点</p>
+<ul>
+<li>可以通过查询哪些节点的 <code>id</code> 在 <code>left</code> 和 <code>right</code> 之间来获取一个节点的所有子节点</li>
+<li>可以通过查询一个节点的 <code>id</code> 在哪些节点 <code>left</code> 和 <code>right</code> 之间来获取它的祖先节点</li>
+<li>删除一个非叶节点时，其子节点会代替删除的节点，成为其直接父节点的直接后代</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>需要复杂的查询才能找到一个节点的直接父节点或直接子节点</li>
+<li>插入和移动一个节点时，需要相应的检查并更新其祖先和子孙节点 <code>left</code> 和 <code>right</code>，不适用需要频繁插入和移动节点的情况</li>
+</ul>
+<h4 id="解决方案：闭包表"><a href="#解决方案：闭包表" class="headerlink" title="解决方案：闭包表"></a>解决方案：闭包表</h4><p>创建一个额外的表来记录树中所有节点的关系，表包含 <code>ancestor</code> 和 <code>descendant</code> 字段来记录祖先和子代关系，同时也可以加入一个 <code>path_length</code> 来表示祖先到子代的距离，如 <code>path_length</code> 等于 0 表示自我引用，等于 1 表示直接子节点，以此类推。</p>
+<p>优点：</p>
+<ul>
+<li>可以通过 <code>ancestor</code> 和 <code>descendant</code> 快速高效的查询一个节点所有的祖先节点和子节点</li>
+<li>结合 <code>path_length</code> 可以快速查出直接父节点和直接子节点</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>空间换时间，闭包表的条目数为实际数据的平方级</li>
+</ul>
+<h3 id="选择合适的主键"><a href="#选择合适的主键" class="headerlink" title="选择合适的主键"></a>选择合适的主键</h3><hr>
+<h4 id="反模式：使用通用-ID-主键"><a href="#反模式：使用通用-ID-主键" class="headerlink" title="反模式：使用通用 ID 主键"></a>反模式：使用通用 ID 主键</h4><p>每个表都有一个通用主键，且具有三个特性：</p>
+<ul>
+<li>主键名叫做 <code>id</code></li>
+<li>数据类型是 32 位和 64 位</li>
+<li>主键的值是自动生成的以确保唯一性</li>
+</ul>
+<p>引起的问题：</p>
+<ul>
+<li>需要数据插入完成后才有主键</li>
+<li>冗余键值，往往同时存在另一个逻辑上更自然的主键</li>
+<li>因为主键业务无关，所以需要额外声明一个 UNIQUE 约束</li>
+<li><code>id</code> 是一个意义不明的关键字，无法表达额外信息</li>
+<li>无法使用 <code>USING</code> 关键字</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>业务需求多变，使用业务无关的主键有时可以给自己留一条后路</li>
+<li><code>InnoDB</code> 数据是按照主键聚簇的，使用自增主键可以避免磁盘的随机 IO 提高写入性能</li>
+<li>二级索引存储了主键，使用联合索引或字符串作为主键会增大二级索引占用的空间，影响查询性能</li>
+</ul>
+<h4 id="解决方案：剪裁设计"><a href="#解决方案：剪裁设计" class="headerlink" title="解决方案：剪裁设计"></a>解决方案：剪裁设计</h4><ul>
+<li>为主键选择更有意义的名称，如用 <code>user_id</code> 代替 <code>id</code></li>
+<li>使用自然键和组合键作为主键</li>
+</ul>
+<h3 id="外键约束"><a href="#外键约束" class="headerlink" title="外键约束"></a>外键约束</h3><hr>
+<h4 id="反模式：无视外键约束"><a href="#反模式：无视外键约束" class="headerlink" title="反模式：无视外键约束"></a>反模式：无视外键约束</h4><p>为了使数据库设计更加高效灵活，设计表时不添加外键约束</p>
+<p>引起的问题：</p>
+<ul>
+<li>无法完全保证数据的引用完整性（误操作，代码Bug等）</li>
+<li>代码层面需要检查数据引用完整性，使得逻辑更加复杂（如更新，删除操作需要同时操作多表）</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>应用对性能要求更高，对数据完整性要求较低</li>
+<li>框架模型层已经能很好处理数据完整性问题</li>
+<li>业务逻辑多变导致表结构经常需要变更</li>
+</ul>
+<h4 id="解决方案：声明外键约束"><a href="#解决方案：声明外键约束" class="headerlink" title="解决方案：声明外键约束"></a>解决方案：声明外键约束</h4><p>通过使用外键约束来保证数据完整性</p>
+<h3 id="实体-属性-值-——-存储可变属性"><a href="#实体-属性-值-——-存储可变属性" class="headerlink" title="实体-属性-值 —— 存储可变属性"></a>实体-属性-值 —— 存储可变属性</h3><hr>
+<h4 id="反模式：使用-EAV-模型"><a href="#反模式：使用-EAV-模型" class="headerlink" title="反模式：使用 EAV 模型"></a>反模式：使用 EAV 模型</h4><p>描述：将属性当做行来存储，使用 EAV 即 Entity-Attribute-Value 结构的表来支持可变属性，表中每条记录都包含实体（指向实体的外键）、属性、值三列</p>
+<p>引起的问题：</p>
+<ul>
+<li>属性查询操作复杂化</li>
+<li>无法声明 <code>NOT NULL</code></li>
+<li>无法使用正确的数据结构，属性值一般只能是一个单纯的字符串</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>绝大部分情况下不要考虑 EAV， 如果有大量非关系数据管理的需求，最好考虑使用非关系型数据库。</li>
+</ul>
+<h4 id="解决方案：-单表继承"><a href="#解决方案：-单表继承" class="headerlink" title="解决方案： 单表继承"></a>解决方案： 单表继承</h4><p>当数据的子类型和子类型的非公共属性很少时，可以使用单表存储所有子类型和属性，将所有相关的类型存放到一张表中，为每个类型的每个属性保留一列，使用一个 <code>type</code> 属性来标识类型</p>
+<p>缺点：</p>
+<ul>
+<li>非公共属性存在很多空项，无法使用 <code>NOT NULL</code> 限制</li>
+<li>缺乏元信息来标识一个属性属于哪个子类型</li>
+</ul>
+<h4 id="解决方案：实体表继承"><a href="#解决方案：实体表继承" class="headerlink" title="解决方案：实体表继承"></a>解决方案：实体表继承</h4><p>当业务中很少需要一次性查询所有子类型时，可以使用将每个子类型分别存储到不同的实体表中，每个表包含该类型的所有属性</p>
+<p>缺点：</p>
+<ul>
+<li>添加通用属性时，需要对每个子类型表进行操作</li>
+</ul>
+<h4 id="类表继承"><a href="#类表继承" class="headerlink" title="类表继承"></a>类表继承</h4><p>使用一个基类表存储所有子类型的公共属性（同样需要一个 <code>type</code> 属性来区分子类型），对于每个子类型创建一个独立的表存储其特有属性，使用外键和基类表进行关联</p>
+<p>缺点：</p>
+<ul>
+<li>需要额外的 <code>join</code> 来获取相应的子类型属性</li>
+</ul>
+<h4 id="半结构化数据模型"><a href="#半结构化数据模型" class="headerlink" title="半结构化数据模型"></a>半结构化数据模型</h4><p>当子类型数量很多或者需要经常变动属性时，可以使用一列来存储 <code>XML</code> 或者 <code>JSON</code> 格式</p>
+<p>缺点：</p>
+<ul>
+<li>当你使用的数据库不支持类似 <code>JSON</code> 这样的特殊格式存储时，你无法对其中的一个属性进行限制，聚合运算，排序，添加索引等操作，并且你需要获取整个结构并在代码中去解码相应的属性</li>
+</ul>
+<h3 id="多态关联-——-单列属性引用多表"><a href="#多态关联-——-单列属性引用多表" class="headerlink" title="多态关联 —— 单列属性引用多表"></a>多态关联 —— 单列属性引用多表</h3><h4 id="反模式：使用额外的列来标识所引用的表"><a href="#反模式：使用额外的列来标识所引用的表" class="headerlink" title="反模式：使用额外的列来标识所引用的表"></a>反模式：使用额外的列来标识所引用的表</h4><p>添加一个额外的列来标识当前行所引用的表</p>
+<p>引起的问题：</p>
+<ul>
+<li>无法声明外键约束</li>
+<li>无法进行关联查询，需要在代码中进行判断后再增加一次查询</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>不声明外键约束的情况下</li>
+<li>无法使用 <code>join</code> 的情况下（如使用了数据库代理，分库分表等）</li>
+</ul>
+<h4 id="解决方案：反向引用"><a href="#解决方案：反向引用" class="headerlink" title="解决方案：反向引用"></a>解决方案：反向引用</h4><p>为每个被引用表创建一个交叉表</p>
+<p>缺点：</p>
+<ul>
+<li>无法保证一个引用在多张交叉表中出现</li>
+<li>额外的性能开销</li>
+</ul>
+<h4 id="解决方案：创建共用的超级表"><a href="#解决方案：创建共用的超级表" class="headerlink" title="解决方案：创建共用的超级表"></a>解决方案：创建共用的超级表</h4><p>使被引用的表继承一个共同的基类表，用基类表代替子类表建立关联关系</p>
+<p>缺点：</p>
+<ul>
+<li>额外的性能开销</li>
+</ul>
+<h4 id="元数据分裂-——-数据表的扩展"><a href="#元数据分裂-——-数据表的扩展" class="headerlink" title="元数据分裂 —— 数据表的扩展"></a>元数据分裂 —— 数据表的扩展</h4><h4 id="反模式：克隆表"><a href="#反模式：克隆表" class="headerlink" title="反模式：克隆表"></a>反模式：克隆表</h4><p>将一个表拆分成多个结构相同的小表，使用表中一个特定数据字段来给拆分出来的表进行命名</p>
+<p>引起的问题：</p>
+<ul>
+<li>不断产生新表</li>
+<li>更新数据时，可能需要在不同克隆表中同步数据</li>
+<li>跨表查询</li>
+<li>变更表结构</li>
+</ul>
+<p>合理使用反模式：</p>
+<ul>
+<li>归档数据</li>
+</ul>
+<h4 id="解决方案：垂直拆分"><a href="#解决方案：垂直拆分" class="headerlink" title="解决方案：垂直拆分"></a>解决方案：垂直拆分</h4><p>根据业务情况将不常用的字段，大字段（如 <code>text</code>，<code>blob</code>）拆分到单独的表中</p>
+<p>缺点：</p>
+<ul>
+<li>不是所有业务表都能拆分</li>
+<li>不能完全解决数据量不断增长的问题</li>
+</ul>
+<h4 id="解决方案：水平拆分"><a href="#解决方案：水平拆分" class="headerlink" title="解决方案：水平拆分"></a>解决方案：水平拆分</h4><p>垂直拆分无法满足性能需求时，考虑进行水平拆分</p>
+<p>缺点：</p>
+<ul>
+<li>切分规则相对复杂</li>
+</ul>
+</div><div class="tags"><a href="/tags/SQL/">SQL</a></div><div class="post-nav"><a class="pre" href="/2017/11/19/nodebestpractices/">【译】Node.js Best Practices</a><a class="next" href="/2017/01/04/restful-api/">【译】RESTful APIs, 一个巨大的谎言</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.0"><script src="/js/gitment.browser.js?v=0.0.0"></script><script>var gitment = new Gitment({
+  owner: 'eggggger',
+  repo: 'eggggger.github.io',
+  oauth: {
+    client_id: 'd211383bad9b1b0bfc87',
+    client_secret: 'eea964605f5199d9ef1afc6944088b6c40ca647e',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://eggggger.xyz"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/">写码</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/HTTP2/" style="font-size: 15px;">HTTP2</a> <a href="/tags/NPN/" style="font-size: 15px;">NPN</a> <a href="/tags/ALPN/" style="font-size: 15px;">ALPN</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/OpenSearch/" style="font-size: 15px;">OpenSearch</a> <a href="/tags/Node/" style="font-size: 15px;">Node</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a> <a href="/tags/SQL/" style="font-size: 15px;">SQL</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/19/nodebestpractices/">【译】Node.js Best Practices</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/05/08/sql-antipatterns1/">SQL反模式（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/04/restful-api/">【译】RESTful APIs, 一个巨大的谎言</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/12/things-to-learn-about-linux/">【译】你应该要知道的 Linux 知识 - Julia Evans</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/22/node-gc/">【译】Node.js 垃圾回收</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/why-http2/">Why HTTP/2 ?</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/HTTP2/">HTTP 2.0 与 NPN 与 ALPN 与 OpenSSL 与 Nginx</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/10/OpenSearch/">OpenSearch</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/eggggger" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">写码笔记.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
