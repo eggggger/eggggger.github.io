@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>【译】RESTful APIs, 一个巨大的谎言 | 写码笔记</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-109825051-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">【译】RESTful APIs, 一个巨大的谎言</h1><a id="logo" href="/.">写码笔记</a><p class="description">duqutao@gmail.com</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">【译】RESTful APIs, 一个巨大的谎言</h1><div class="post-meta">Jan 4, 2017<span> | </span><span class="category"><a href="/categories/programming/">写码</a></span></div><div class="post-content"><p>为什么你会受益于让这个流行的范式归于平静？</p>
+<a id="more"></a>
+<p><img src="https://mmikowski.github.io/images/2015-08-10-rip-small.jpg" alt="RESTful API, rest in peace"></p>
+<h3 id="重要更新"><a href="#重要更新" class="headerlink" title="重要更新"></a>重要更新</h3><p>我新增了关于  <a href="https://mmikowski.github.io/json-pure" target="_blank" rel="noopener">JSON-Pure APIs</a>  最佳实践的后续内容。但是在此之前，请先阅读下面的内容。</p>
+<h3 id="RESTful-APIs-很好用，真的吗？"><a href="#RESTful-APIs-很好用，真的吗？" class="headerlink" title="RESTful APIs 很好用，真的吗？"></a>RESTful APIs 很好用，真的吗？</h3><p>如果你看过最近 10 年的互联网开发者简历或相关招聘信息，那么可以原谅你认为 <strong>RESTful APIs</strong> 是 Web 开发真神赐予的礼物。RESTful APIs 到处都是，甚至市场营销人员也把他们放在销售材料中推销给 CEO 和 HR.</p>
+<p>所以 RESTful APIs  真的是一个好想法吗？在回答这个问题之前，让我们先看下 REST 的出处，以及 RESTful APIs 的定义。</p>
+<h3 id="REST-的起源？"><a href="#REST-的起源？" class="headerlink" title="REST 的起源？"></a>REST 的起源？</h3><p>REST 流行起来是因为  <a href="https://en.wikipedia.org/wiki/Roy_Fielding" target="_blank" rel="noopener">Roy Fielding</a> 在他 2000 年的博士论文  <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm" target="_blank" rel="noopener">Architectural Styles and the Design of Network-based Software Architectures</a> 中介绍并推荐了它。Roy 因为他对 web 开发，特别是 HTTP 规范的贡献而闻名。</p>
+<h3 id="什么是-RESTful-APIs-？"><a href="#什么是-RESTful-APIs-？" class="headerlink" title="什么是 RESTful APIs ？"></a>什么是 RESTful APIs ？</h3><p><a href="https://en.wikipedia.org/wiki/Representational_state_transfer" target="_blank" rel="noopener">REST</a>  即表述性状态转移，是一种用于构建可扩展 web 服务的架构风格。Roy 提倡使用他在 HTTP 标准 中参与制定的请求方法来赋予 HTTP 请求语义。</p>
+<p>因此当使用 REST 时，下面的 HTTP 请求都有不同的语义：</p>
+<ul>
+<li><code>GET /object/list</code></li>
+<li><code>POST /object/list</code></li>
+<li><code>PUT /object/list</code></li>
+</ul>
+<p>这只是一部分 HTTP 请求方法。完整的列表如下：<code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, <code>PATCH</code>, <code>POST</code>, <code>PUT</code>, <code>TRACE</code>。可以原谅你从没有听说过其中的某些方法，因为它们中的一部分也一直都没得到客户端或服务端的支持。<br>Roy 同样主张使用 他参与制定的 HTTP 响应状态码来传达响应的语义。共有 38 种 HTTP 响应状态码，下面是一个完整的列表。为了节约空间，我缩短了一些响应头：</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200 OK</td>
+<td>201 Created</td>
+</tr>
+<tr>
+<td>202 Accepted</td>
+<td>203 Not authorized</td>
+</tr>
+<tr>
+<td>204 No content</td>
+<td>205 Reset content</td>
+</tr>
+<tr>
+<td>206 Partial content</td>
+<td></td>
+</tr>
+<tr>
+<td>300 Multiple choice</td>
+<td>301 Moved permanently</td>
+</tr>
+<tr>
+<td>302 Found</td>
+<td>303 See other</td>
+</tr>
+<tr>
+<td>304 Not modified</td>
+<td>306 (unused)</td>
+</tr>
+<tr>
+<td>307 Temporary redirect</td>
+<td></td>
+</tr>
+<tr>
+<td>400 Bad request</td>
+<td>401 Unauthorized</td>
+</tr>
+<tr>
+<td>402 Payment required</td>
+<td>403 Forbidden</td>
+</tr>
+<tr>
+<td>404 Not found</td>
+<td>405 Method not allowed</td>
+</tr>
+<tr>
+<td>406 Not acceptable</td>
+<td>407 Proxy auth required</td>
+</tr>
+<tr>
+<td>408 Timeout</td>
+<td>409 Conflict</td>
+</tr>
+<tr>
+<td>410 Gone</td>
+<td>411 Length required</td>
+</tr>
+<tr>
+<td>412 Preconditions failed</td>
+<td>413 Request entity too large</td>
+</tr>
+<tr>
+<td>414 Requested URI too long</td>
+<td>415 Unsupported media</td>
+</tr>
+<tr>
+<td>416 Bad request range</td>
+<td>417 Expectation failed</td>
+</tr>
+<tr>
+<td>500 Server error</td>
+<td>501 Not implemented</td>
+</tr>
+<tr>
+<td>502 Bad gateway</td>
+<td>503 Service unavailable</td>
+</tr>
+<tr>
+<td>504 Gateway timeout</td>
+<td>505 Bad HTTP version</td>
+</tr>
+</tbody>
+</table>
+<p>因此，这种基于 HTTP 的 API 事务最少包含了以下内容：</p>
+<ul>
+<li>the HTTP request method verb, e.g <code>GET</code></li>
+<li>请求方法动词, 如 <code>GET</code></li>
+<li>请求地址, 如 <code>/object/list</code></li>
+<li>请求实体, 如 表单字段</li>
+<li>响应状态码 如 <code>200 OK</code></li>
+<li>响应实体, 如 JSON 数据</li>
+</ul>
+<p>许多人在通过 HTTP 提供 web 服务时接受了这种模式，而这就是我们所说的 <strong>RESTful API</strong>.</p>
+<p>由于各种原因，RESTful API 可能比上面显示的更复杂，其中一些我们会在下文中讨论。我们将忽略和网络传输及缓存有关的复杂因素，因为这些问题对所有通信渠道是通用的。</p>
+<h3 id="RESTful-APIs-事实上是相当糟糕的"><a href="#RESTful-APIs-事实上是相当糟糕的" class="headerlink" title="RESTful APIs 事实上是相当糟糕的"></a>RESTful APIs 事实上是相当糟糕的</h3><p>在许多方面，例如内容交付上，REST 都是一个不错的机制，它也很好得为我们服务了二十多年。但是是时候打破沉默了，承认 RESTful API 可能是在 web 软件中广泛使用的最糟糕的想法之一。Roy 或许是一个厉害的家伙，他也的确有很多不错的想法。可是无论如何，我都不相信  RESTful APIs 是其中之一。</p>
+<p>我们很快将看到更好的构建互联网 API 的方式，但在完全领会这个解决方案之前，我们首先得知道 RESTful APIs 的 5 个主要问题，它们使 API 昂贵，冗余，并且容易出错。让我们开始吧！</p>
+<h3 id="问题-1-关于-RESTful-API-是什么，几乎达不成共识"><a href="#问题-1-关于-RESTful-API-是什么，几乎达不成共识" class="headerlink" title="问题 #1: 关于 RESTful API 是什么，几乎达不成共识"></a>问题 #1: 关于 RESTful API 是什么，几乎达不成共识</h3><p>你有没有注意到没有人称呼他们的 API 为 “RESTpure”？ 他们叫它 “RESTful” 或者 “RESTish”。那是因为没有人能够在全部的请求方法，实体和响应状态码的真正含义上达成一致。<br>设想一下，例如，我们应该用 <code>200 OK</code> 表示成功的更新了一条记录还是要用 <code>201 Created</code>？看上去我们应该用 <code>250 Updated</code>，但是这个状态码并不存在。而且谁能向我解释一下 <code>417 Expectation failed</code> 的真正含义。当然我是指除了 Roy 之外的人。</p>
+<p>HTTP 方法和响应状态码的词汇过于模糊和不完整，无法就其语义达成一致。至少在我所知道的，没有任何管理机构能召集大家一起把事情讲清楚。一个公司定义的 <code>200 OK</code> 必然与另一家公司定义的有细微且令人讨厌的区别。这意味着一个 RESTful 模式不能像我们想要的那样可以预测。<br>如果只有这一个问题，我可能还会用 RESTful APIs。但 RESTful APIs 的问题层出不穷…</p>
+<h3 id="问题-2-REST-词汇的支持不完全"><a href="#问题-2-REST-词汇的支持不完全" class="headerlink" title="问题 #2:  REST 词汇的支持不完全"></a>问题 #2:  REST 词汇的支持不完全</h3><p>即使就 REST 的各个语义达成一致，我们还会遇到另一个实际的问题：大部分客户端和服务器程序不能完全支持 HTTP 协议 里定义的动词或响应状态码。例如，大部分浏览器对<code>PUT</code> 或 <code>DELETE</code> 仅提供有限的支持。并且很多服务端程序通常也不能正确地实现这些方法。</p>
+<p>那么我们如何突破这些限制呢？一种常用的方法是在浏览器的表单里嵌入预期的请求方法。这意味着 REST 请求现在包含：</p>
+<ul>
+<li>一个 HTTP 请求方法, 如 <code>POST</code></li>
+<li>一个请求地址, 如 <code>/object/list</code></li>
+<li>一个我们实际期望的方法，嵌入在请求的实体中，如  <code>DELETE</code></li>
+<li>请求实体本身，如表单字段数据</li>
+</ul>
+<p>响应状态码的处理也好不到哪去。不同的 web 浏览器 (或者服务器) 对响应状态码的解释也经常各不一样。例如，如果遇到 <code>307 Temporary redirect</code> 状态码，一个浏览器可能允许客户端JavaScript 在重定向之前处理响应并取消它，另一个浏览器可能就禁止客户端 JavaScript 处理响应。所有程序中真正可靠的响应状态码只有 <code>200 OK</code> 和 <code>500 Internal server error</code>。除此之外，支持程度一个比一个糟糕。因此，我们也常常可以看到在返回的的实体里嵌入有实际想要的响应状态码。<br>当然，即使我们能让每个人都对什么是 REST 达成一致，并神奇地修复所有已连入互联网的程序对 REST 支持的缺陷，我们仍然还有一个问题：REST 词汇不够丰富。</p>
+<h3 id="问题-3-REST-词汇对-APIs-来说不够丰富"><a href="#问题-3-REST-词汇对-APIs-来说不够丰富" class="headerlink" title="问题 #3: REST 词汇对 APIs 来说不够丰富"></a>问题 #3: REST 词汇对 APIs 来说不够丰富</h3><p>REST 的方法和响应状态码太过于局限，无法有效地表示所有应用程序所需的各种请求和响应。想一下，我们创建了一个应用程序，并要向 HTTP 客户端 发送一个 “render complete” 响应。我们不能使用 HTTP 响应状态码，因为它不存在并且 HTTP 不能扩展。好吧，我想我们还是把实际预期的状态码嵌入到响应实体中去吧。</p>
+<p>还有另外一个问题：HTTP 响应状态码 (200, 201, 202 等) 是和 HTTP 请求方法 (<code>GET</code>, <code>POST</code> 等)没有直接联系的数字，而我们的实体载荷通常是 JSON 格式。所以执行 REST 请求就好像发送一个目的地是斯瓦希里却包含英语内容的包裹，并通过打鼓声来获得交付确认。这种复杂性往往会造成巨大的困惑和错误。它给我们带来了下一个问题：调试。</p>
+<h3 id="问题-4-RESTful-APIs-非常难调试"><a href="#问题-4-RESTful-APIs-非常难调试" class="headerlink" title="问题 #4: RESTful APIs 非常难调试"></a>问题 #4: RESTful APIs 非常难调试</h3><p>如果你曾经用过 RESTful API，你大概知道他们几乎难以调试。这是因为我们必须查看 7 个不同的地方来整理出一个完整的事务中发生了什么：</p>
+<ul>
+<li>HTTP 请求方法, 如 <code>POST</code></li>
+<li>请求地址, 如 <code>/object/list</code></li>
+<li>请求实体中嵌入的实际期望的方法，如 <code>DELETE</code></li>
+<li>请求实体中的实际数据，如 表单数据</li>
+<li>响应状态码，如 <code>200 OK</code></li>
+<li>响应实体中嵌入的实际期望的响应状态码，如 <code>206 Partial content</code></li>
+<li>响应实体中的实际数据</li>
+</ul>
+<p>我们的问题不仅有两个 REST 词汇上的限制，大家就语义达不成一致。现在还有需要查找 7 个不同的地方才可能完全理解和调试一个事务。唯一还能使这更糟的事是，REST 完全绑定到了一个协议上，而不适用于任何其他的协议。当然，这也是我们的下一个问题。</p>
+<h3 id="问题-5-RESTful-APIs-通常绑定在-HTTP-上"><a href="#问题-5-RESTful-APIs-通常绑定在-HTTP-上" class="headerlink" title="问题  #5: RESTful APIs 通常绑定在 HTTP 上"></a>问题  #5: RESTful APIs 通常绑定在 HTTP 上</h3><p>RESTful API 打破了良好通信的一个基本原则：消息内容应该独立于传输通道。将两者混合来迷惑读者是一个历史悠久的方法。</p>
+<p>将 HTTP 协议 与事务的意义混合使得 RESTful API 完全不可移植。将 RESTful API 从 HTTP 迁移 到其他传输协议上需要从 7 个不同的地方解构和重组信息，我们再使用这些信息对 RESTful 请求的全部含义进行编码。</p>
+<p>幸运的是有一个更好的解决方案，避免或减轻了几乎所有 RESTful APIs 的问题。我们将这个解决方案称为 <strong> JSON-Pure APIs </strong>。</p>
+<h3 id="未来的方向：-JSON-Pure-APIs"><a href="#未来的方向：-JSON-Pure-APIs" class="headerlink" title="未来的方向： JSON-Pure APIs"></a>未来的方向： JSON-Pure APIs</h3><p><a href="https://mmikowski.github.io/the_lie/json-pure" target="_blank" rel="noopener">JSON-Pure APIs</a> 解决了我们刚刚讨论的大部分问题。</p>
+<ul>
+<li>它们只使用一种传输方法来发送请求 -  如 <code>POST</code> 用于 HTTP 或 <code>send</code>  用于 WebSockets。</li>
+<li>它们将请求内容与传输机制完全分离。所有的错误，警告和数据通通放在 JSON 请求实体中。</li>
+<li>它们只用一个响应状态码来确认消息的正确接收 - 如 HTTP 的 <code>200 OK</code>。</li>
+<li>它们将响应内容与传输机制完全分离。所有的错误，警告和数据通通放在 JSON 请求实体中。</li>
+<li>它们易于调试，因为事务信息可以在使用了单个特定领域词汇的实体中的易读 JSON 里找到。</li>
+<li>它们可以轻松地在传输协议中迁移和共享，如 HTTP/S，WebSockets，XMPP，telnet，SFTP，SCP 或 SSH</li>
+</ul>
+<p>JSON-Pure APIs  的产生是因为开发者发现  RESTful APIs  对浏览器或开发人员不是很友好。在 API 中将信息和传输通道分离，通常会更快，并且总是更可靠，更易于使用，迁移和调试。现在，如果你使用 Twitter API，受虐狂可以选择 RESTful API，而我们其他人则可以使用 JSON-Pure API (他们叫它 “Web API”)。</p>
+<p>在过去的十年里，我经常被要求使用 RESTful API 来代替 JSON-Pure。上一次我不得不支持一个 RESTful API 是在2011年。值得庆幸的是，服务端团队同意通过简单地将他们的 HTTP 方法 和 响应状态码 填充到 JSON 中来提供 JSON-Pure API 以及 RESTful 变体。几个月以后，我认识的每一个人使用 API 的人都切换到 JSON-Pure 版本了。这相比之前好多了。</p>
+<h3 id="JSON-Pure-APIs-的未来"><a href="#JSON-Pure-APIs-的未来" class="headerlink" title="JSON-Pure APIs 的未来"></a>JSON-Pure APIs 的未来</h3><p><strong>更新</strong>: 我新增了一些内容来解释 <a href="https://mmikowski.github.io/json-pure" target="_blank" rel="noopener">JSON-Pure APIs</a> 的最佳实践的细节。当然，这些建议并不是在任何情况下都是最佳的，但它们的确被我频繁地用于需要响应 <a href="https://www.amazon.com/Single-Page-Applications-end---end/dp/1617290750" target="_blank" rel="noopener">单页 Web 应用</a> 的 API 类型上。一如既往，你的道路可能会有所不同。但是如果你的用例和我一样的话，你可能会想让你的下一代 API “RESTless” 并且 “go Pure”。</p>
+<p>Cheers, Mike</p>
+<p>Written on August 10, 2015</p>
+<blockquote>
+<p>本文转载自：<a href="http://www.zcfy.cc" target="_blank" rel="noopener">众成翻译</a><br>译者：<a href="http://www.zcfy.cc/@eggggger" target="_blank" rel="noopener">eggggger</a><br>链接：<a href="http://www.zcfy.cc/article/2155" target="_blank" rel="noopener">http://www.zcfy.cc/article/2155</a><br>原文：<a href="https://mmikowski.github.io/the_lie/" target="_blank" rel="noopener">https://mmikowski.github.io/the_lie/</a></p>
+</blockquote>
+</div><div class="tags"><a href="/tags/OpenSearch/">OpenSearch</a></div><div class="post-nav"><a class="pre" href="/2017/11/19/nodebestpractices/">【译】Node.js Best Practices</a><a class="next" href="/2016/12/12/things-to-learn-about-linux/">【译】你应该要知道的 Linux 知识 - Julia Evans</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.0"><script src="/js/gitment.browser.js?v=0.0.0"></script><script>var gitment = new Gitment({
+  owner: 'eggggger',
+  repo: 'eggggger.github.io',
+  oauth: {
+    client_id: 'd211383bad9b1b0bfc87',
+    client_secret: 'eea964605f5199d9ef1afc6944088b6c40ca647e',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://eggggger.xyz"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/">写码</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/HTTP2/" style="font-size: 15px;">HTTP2</a> <a href="/tags/NPN/" style="font-size: 15px;">NPN</a> <a href="/tags/ALPN/" style="font-size: 15px;">ALPN</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/OpenSearch/" style="font-size: 15px;">OpenSearch</a> <a href="/tags/Node/" style="font-size: 15px;">Node</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/19/nodebestpractices/">【译】Node.js Best Practices</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/04/restful-api/">【译】RESTful APIs, 一个巨大的谎言</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/12/things-to-learn-about-linux/">【译】你应该要知道的 Linux 知识 - Julia Evans</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/22/node-gc/">【译】Node.js 垃圾回收</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/why-http2/">Why HTTP/2 ?</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/HTTP2/">HTTP 2.0 与 NPN 与 ALPN 与 OpenSSL 与 Nginx</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/10/OpenSearch/">OpenSearch</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/eggggger" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">写码笔记.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

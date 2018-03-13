@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Why HTTP/2 ? | 写码笔记</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-109825051-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Why HTTP/2 ?</h1><a id="logo" href="/.">写码笔记</a><p class="description">duqutao@gmail.com</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Why HTTP/2 ?</h1><div class="post-meta">Oct 17, 2016<span> | </span><span class="category"><a href="/categories/programming/">写码</a></span></div><div class="post-content"><p>HTTP、HTTPS、HTTP/2的一些比较 (HTTP/2 虽然从协议角度来说并不一定要基于 TLS 但是浏览器的实现全部是基于 TLS 的，以下所说的 HTTP/2 指浏览器实现的基于 TLS 的版本)。</p>
+<a id="more"></a>
+<h3 id="SEO"><a href="#SEO" class="headerlink" title="SEO"></a>SEO</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>HTTP</th>
+<th>HTTPS &amp; HTTP2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>谷歌</td>
+<td>❌</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>百度</td>
+<td>❌</td>
+<td>❌ </td>
+</tr>
+</tbody>
+</table>
+<p>HTTPS 对谷歌的 SEO 有微弱加成，百度后续也会有加成</p>
+<h3 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h3><table>
+<thead>
+<tr>
+<th></th>
+<th>HTTP</th>
+<th>HTTPS &amp; HTTP/2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>敏感信息泄露</td>
+<td>❌</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>DNS 污染</td>
+<td>❌</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>DNS 劫持</td>
+<td>❌</td>
+<td>✔️</td>
+</tr>
+<tr>
+<td>中间人攻击</td>
+<td>❌</td>
+<td>✔️ (连接建立后)</td>
+</tr>
+</tbody>
+</table>
+<p>HTTPS 和 HTTP/2 的安全性明显优于 HTTP</p>
+<h3 id="计算耗时"><a href="#计算耗时" class="headerlink" title="计算耗时"></a>计算耗时</h3><p>相比于HTTP，HTTPS &amp; HTTP/2 加解密过程中存在额外的计算耗时，特别是首次连接建立的 TLS 握手过程中的非对称加解密 (30ms+)。</p>
+<h3 id="首次请求建立前的-RTT"><a href="#首次请求建立前的-RTT" class="headerlink" title="首次请求建立前的 RTT"></a>首次请求建立前的 RTT</h3><h4 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h4><p> <img src="http://ogovd1xl2.bkt.clouddn.com/http.png" alt="http"><br> 最坏耗时 2 个 RTT：</p>
+<ul>
+<li>域名解析，耗时 1 个 RTT (缓存)</li>
+<li>TCP 三次握手，耗时 1 个 RTT</li>
+</ul>
+<p>一般耗时 1 个 RTT</p>
+<h4 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h4><p> <img src="http://ogovd1xl2.bkt.clouddn.com/https.png" alt="https"><br> 最坏耗时 9 个 RTT：</p>
+<ul>
+<li>域名解析， 耗时 1 个 RTT</li>
+<li>TCP 三次握手，耗时 1 个 RTT</li>
+<li>HTTP 重定向 HTTPS 及后续握手 耗时 2 个 RTT  (开启 <a href="https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security" target="_blank" rel="noopener">HSTS</a>)<pre><code>* 302 过程，耗时 1 个 RTT
+* TCP 重新握手，耗时 1 个 RTT
+</code></pre></li>
+<li>TLS 完全握手过程 耗时 4 个 RTT + 1 个 DNS 解析 <pre><code>* TLS 完全握手 耗时 2 个 RTT
+ * TLS 握手过程中的 CA 域名解析 耗时 1 个 RTT (缓存)
+ * CA 站点 TCP 握手，耗时 1 个 RTT
+ * [OCSP](https://en.wikipedia.org/wiki/    Online_Certificate_Status_Protocol) 查询 耗时 1 个 RTT (缓存)
+</code></pre></li>
+</ul>
+<p>一般耗时 2 个 RTT</p>
+<h4 id="HTTP-2"><a href="#HTTP-2" class="headerlink" title="HTTP/2"></a>HTTP/2</h4><p><img src="http://ogovd1xl2.bkt.clouddn.com/how-alpn-works.png" alt="ALPN"><br>HTTP/2 使用 <a href="https://en.wikipedia.org/wiki/Application-Layer_Protocol_Negotiation" target="_blank" rel="noopener">ALPN</a> 在 TLS 握手过程中即可进行, 耗时同 HTTPS</p>
+<h3 id="多路复用"><a href="#多路复用" class="headerlink" title="多路复用"></a>多路复用</h3><p><img src="http://ogovd1xl2.bkt.clouddn.com/123.png" alt="compare"> </p>
+<p>HTTP 和 HTTPS 在使用长连接的情况下后续请求延迟相差不大，两者都存在 HOL blocking 问题，每次请求都需要等上一个请求完成，这个过程会造成额外的 RTT。HTTP/1.1 虽然可采用</p>
+<ul>
+<li>内嵌及打包资源以减少HTTP请求</li>
+<li>多连接 (浏览器一般默认每来源 6 个连接，可利用多域名优化突破连接数限制) 减少排队 </li>
+<li>HTTP pipelining </li>
+</ul>
+<p>等优化手段减少 RTT 延迟，但每个方案都不是完美的，如内嵌或打包资源无法使用细粒度的缓存，多连接的方式会对服务端造成相当大的开销，HTTP pipelining 仍然存在 HOL blocking 的问题，且只对幂等的请求有效。</p>
+<p>HTTP/2 使用二进制分帧机制，所有通信在一个 TCP 连接上完成，可以并行交错地发送请求和响应，解决了应用层 HOL 阻塞问题 (TCP 层仍存在 HOL 阻塞)，消除了并行处理和发送请求及响应时对多个连接的依赖，而且其在协议层面的支持，不需要额外的开发。</p>
+<h3 id="首部压缩"><a href="#首部压缩" class="headerlink" title="首部压缩"></a>首部压缩</h3><p>HTTP 的每一次通信都会携带一组首部，用于描述传输的资源及其属性。在 HTTP/1.1 中，这些元数据都是以纯文本形式发送的，重复且过大的首部增加了延迟和带宽开销，严重的情况下，由于 TCP 慢启动的原因，首部长度超过初始拥塞窗口，会增加一次额外的 RTT。</p>
+<p>HTTP/2 采用 HPACK 压缩首部，有效的减少了重复首部字节的流量开销。</p>
+<h3 id="服务器推送"><a href="#服务器推送" class="headerlink" title="服务器推送"></a>服务器推送</h3><p>HTTP/1.1 不支持服务器推送。</p>
+<p>HTTP/2 支持服务器推送，服务器可以对一个客户端请求发送多个响应，如此服务器可以分析资源文档，将文档相关连的资源提前推送给客户端，避免了客户端文档分析依赖后，重新请求的开销。</p>
+<p>客户端可以拒绝服务端推送的资源，这可能会造成资源的浪费。目前大部分服务器还不支持服务器推送。</p>
+<h3 id="请求优先级"><a href="#请求优先级" class="headerlink" title="请求优先级"></a>请求优先级</h3><p>HTTP/1.1 不支持请求优先级。</p>
+<p>HTTP/2 可以设置请求的优先级，通过优先级设置可以将重要的资源优先发送给客户端，客户端因此可以更快的向用户呈现界面。</p>
+<p>目前大部分服务器还不支持服务器推送</p>
+<h3 id="流量控制"><a href="#流量控制" class="headerlink" title="流量控制"></a>流量控制</h3><p>HTTP/1.1 不支持流量控制。</p>
+<p>HTTP/2 采用类似 TCP 滑动窗口的机制进行流量控制，可以避免网络拥堵。</p>
+<p>目前大部分服务器还不支持服务器推送</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>绝绝绝大部分情况： HTTP/2 优于 HTTPS </li>
+<li>请求数量多的情况：HTTP/2 优于 HTTP</li>
+<li>对安全性要求高的情况：HTTPS 优于 HTTP</li>
+<li>高 RTT 的情况： HTTP 优于 HTTP/2 </li>
+<li>下载大文件的情况：HTTP 优于 HTTP/2 </li>
+</ul>
+<p>总之如果之前是 HTTP，且要考虑浏览器兼容，对安全传输要求不高，采用过打包，多域名等优化手段的情况，升级 HTTP/2 可能会造成负面的性能问题。除此之外，就愉快的升级 HTTP/2 吧 (特别是主要升级成本在运维大哥的情况下)。</p>
+</div><div class="tags"><a href="/tags/HTTP2/">HTTP2</a><a href="/tags/HTTPS/">HTTPS</a></div><div class="post-nav"><a class="pre" href="/2016/10/22/node-gc/">【译】Node.js 垃圾回收</a><a class="next" href="/2016/10/16/HTTP2/">HTTP 2.0 与 NPN 与 ALPN 与 OpenSSL 与 Nginx</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.0"><script src="/js/gitment.browser.js?v=0.0.0"></script><script>var gitment = new Gitment({
+  owner: 'eggggger',
+  repo: 'eggggger.github.io',
+  oauth: {
+    client_id: 'd211383bad9b1b0bfc87',
+    client_secret: 'eea964605f5199d9ef1afc6944088b6c40ca647e',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://eggggger.xyz"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/">写码</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/HTTP2/" style="font-size: 15px;">HTTP2</a> <a href="/tags/NPN/" style="font-size: 15px;">NPN</a> <a href="/tags/ALPN/" style="font-size: 15px;">ALPN</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/OpenSearch/" style="font-size: 15px;">OpenSearch</a> <a href="/tags/Node/" style="font-size: 15px;">Node</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/19/nodebestpractices/">【译】Node.js Best Practices</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/04/restful-api/">【译】RESTful APIs, 一个巨大的谎言</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/12/things-to-learn-about-linux/">【译】你应该要知道的 Linux 知识 - Julia Evans</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/22/node-gc/">【译】Node.js 垃圾回收</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/why-http2/">Why HTTP/2 ?</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/HTTP2/">HTTP 2.0 与 NPN 与 ALPN 与 OpenSSL 与 Nginx</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/10/OpenSearch/">OpenSearch</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/eggggger" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">写码笔记.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>

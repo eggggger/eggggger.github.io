@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>【译】你应该要知道的 Linux 知识 - Julia Evans | 写码笔记</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.0"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+ga('create','UA-109825051-1','auto');ga('send','pageview');</script></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">【译】你应该要知道的 Linux 知识 - Julia Evans</h1><a id="logo" href="/.">写码笔记</a><p class="description">duqutao@gmail.com</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">【译】你应该要知道的 Linux 知识 - Julia Evans</h1><div class="post-meta">Dec 12, 2016<span> | </span><span class="category"><a href="/categories/programming/">写码</a></span></div><div class="post-content"><p>我在 Twitter 上问了网友们更有兴趣了解 Linux 的什么东西。其中有很多回复非常不错，这里整理出了一个列表（其中有许多是可以在任何 Unixy 系统上讨论的，另一些则特定于 Linux）</p>
+<a id="more"></a>
+<ul>
+<li><p>tcp/ip &amp; 网络相关</p>
+</li>
+<li><p>什么是 port/socket?</p>
+</li>
+<li><p>seccomp (Linux 内核提供的一种沙盒机制)</p>
+</li>
+<li><p>systemd (系统服务管理器，启动守护进程等)</p>
+</li>
+<li><p>IPC (进程间通信，管道)</p>
+</li>
+<li><p>r, w, x (文件权限)，SetUid, SetGid, Sticky Bit (文件特殊权限), chown 如何工作？</p>
+</li>
+<li><p>shell 如何使用 fork &amp; exec？</p>
+</li>
+<li><p>怎么让我的电脑变成路由器？</p>
+</li>
+<li><p>process groups (进程组), session leaders (会话领导进程), shell job control (工作管理)</p>
+</li>
+<li><p>内存分配, 堆的工作原理, malloc 做了什么？</p>
+</li>
+<li><p>ttys，终端是如何工作的？</p>
+</li>
+<li><p>process scheduling (进程调度)</p>
+</li>
+<li><p>drivers (驱动程序)</p>
+</li>
+<li><p>Linux 和 Unix 的区别？</p>
+</li>
+<li><p>kernel (内核)</p>
+</li>
+<li><p>现代 X (窗口系统协议) 服务器？</p>
+</li>
+<li><p>X11 (X 协议 11 版本) 如何工作？</p>
+</li>
+<li><p>Linux’s zero-copy (零拷贝) API (sendfile, splice, tee)</p>
+</li>
+<li><p>dmesg (显示内核缓存区信息) 还能做什么？</p>
+</li>
+<li><p>内核模块如何工作？</p>
+</li>
+<li><p>嵌入式相关: realtime (实时)namespaces (环境隔离)， cgroups (进程组群)，docker (容器)， SELinux (安全增强 Linux)，AppArmor (内核安全模块，应用程序访问控制)</p>
+</li>
+<li><p>debuggers (调试器)</p>
+</li>
+<li><p>线程和进程的区别？</p>
+</li>
+<li><p>如果 Unix 是基于命令行的，桌面环境如 GNOME 是怎么实现的？</p>
+</li>
+<li><p>man 是如何工作的？</p>
+</li>
+<li><p>kpatch (内核热补丁技术 by Red Hat), kgraph (内核热补丁技术 by SUSE), kexec (内核热切换)</p>
+</li>
+<li><p>栈相关的： C 的变量实际上是 stack slot (栈槽)？tf (trap flag ?) 怎么做 setjmp<br>和 longjmp 的工作?</p>
+</li>
+<li><p>package management (包管理器)</p>
+</li>
+<li><p>mounts and vfs (挂载和虚拟文件系统)</p>
+</li>
+</ul>
+<p>有很多理由表明这些知识点都很不错：</p>
+<ol>
+<li><p>这个月我要画至少 11 张关于 Linux 的图，它们都是不错的点子。</p>
+</li>
+<li><p>这个列表里的有些东西我都不知道是什么 (dbus, SELinux) ，要不就只是听到过一点 (seccomp， X11 如何工作，以及其他更多)，它提醒我还有许多有趣的东西需要去学习。</p>
+</li>
+<li><p>它让我知道自己掌握到了什么程度 — 虽然在不查资料的情况下我不能解释清楚其中的很多东西，但我至少知道从哪里去了解它们。</p>
+</li>
+</ol>
+<p>此外，我想提醒你们可以在网上写一些有趣的博客/图，例如 “dmesg 能做什么”就是一个不错的主题，你也很有可能因此去学习了解它 (我在维基百科上阅读了<a href="https://en.wikipedia.org/wiki/Dmesg" target="_blank" rel="noopener">dmesg</a>，现在，我比以前了解的更深入了)</p>
+<blockquote>
+<p>本文转载自：<a href="http://www.zcfy.cc" target="_blank" rel="noopener">众成翻译</a><br>译者：<a href="http://www.zcfy.cc/@eggggger" target="_blank" rel="noopener">eggggger</a><br>链接：<a href="http://www.zcfy.cc/article/1990" target="_blank" rel="noopener">http://www.zcfy.cc/article/1990</a><br>原文：<a href="https://jvns.ca/blog/2016/11/21/things-to-learn-about-linux/" target="_blank" rel="noopener">https://jvns.ca/blog/2016/11/21/things-to-learn-about-linux/</a></p>
+</blockquote>
+</div><div class="tags"><a href="/tags/Linux/">Linux</a></div><div class="post-nav"><a class="pre" href="/2017/01/04/restful-api/">【译】RESTful APIs, 一个巨大的谎言</a><a class="next" href="/2016/10/22/node-gc/">【译】Node.js 垃圾回收</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.0"><script src="/js/gitment.browser.js?v=0.0.0"></script><script>var gitment = new Gitment({
+  owner: 'eggggger',
+  repo: 'eggggger.github.io',
+  oauth: {
+    client_id: 'd211383bad9b1b0bfc87',
+    client_secret: 'eea964605f5199d9ef1afc6944088b6c40ca647e',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank"><input type="text" name="q" maxlength="20" placeholder="Search"/><input type="hidden" name="sitesearch" value="http://eggggger.xyz"/></form></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/programming/">写码</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/HTTP2/" style="font-size: 15px;">HTTP2</a> <a href="/tags/NPN/" style="font-size: 15px;">NPN</a> <a href="/tags/ALPN/" style="font-size: 15px;">ALPN</a> <a href="/tags/Nginx/" style="font-size: 15px;">Nginx</a> <a href="/tags/OpenSearch/" style="font-size: 15px;">OpenSearch</a> <a href="/tags/Node/" style="font-size: 15px;">Node</a> <a href="/tags/GC/" style="font-size: 15px;">GC</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/HTTPS/" style="font-size: 15px;">HTTPS</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/11/19/nodebestpractices/">【译】Node.js Best Practices</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/01/04/restful-api/">【译】RESTful APIs, 一个巨大的谎言</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/12/12/things-to-learn-about-linux/">【译】你应该要知道的 Linux 知识 - Julia Evans</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/22/node-gc/">【译】Node.js 垃圾回收</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/17/why-http2/">Why HTTP/2 ?</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/10/16/HTTP2/">HTTP 2.0 与 NPN 与 ALPN 与 OpenSSL 与 Nginx</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/08/10/OpenSearch/">OpenSearch</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/eggggger" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2018 <a href="/." rel="nofollow">写码笔记.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.0" async></script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.0"></script></div></body></html>
