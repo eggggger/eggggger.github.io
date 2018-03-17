@@ -140,4 +140,4 @@ server {
 
 [NPN]: http://ogovd1xl2.bkt.clouddn.com/xnpn-negotiation.png.pagespeed.ic.jL_X7qsh4g.png?imageView2/1/w/696/h/348
 [ALPN]: http://ogovd1xl2.bkt.clouddn.com/how-alpn-works.png?imageView2/1/w/696/h/348
-[os]: http://ogovd1xl2.bkt.clouddn.com/wwww.png
+[os]: http://ogovd1xl2.bkt.clouddn.com/wwww.png?imageView2/1/w/1031/h/348
